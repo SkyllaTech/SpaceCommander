@@ -1,0 +1,45 @@
+device:
+  type: arduino-uno
+  baudrate: 9600
+
+host:
+  type: python
+  timeout: 1
+
+commands:
+  - name: echo
+    host: device
+    description: foo bar baz
+    inputs:
+     - name: letter
+       type: char
+       description: this is the input letter
+    outputs:
+      - name: letter
+        type: char
+        description: this is the output letter
+      - name: next_char
+        type: char
+        description: the character succeeding letter
+  - name: times2
+    host: device
+    description: multiplies input by 2
+    inputs:
+      - name: x
+        type: int32
+        description: value to double
+    outputs:
+      - name: x2
+        type: int32
+        description: x * 2
+  - name: sqrt
+    host: device
+    description: takes sqrt of input
+    inputs:
+      - name: x
+        type: float
+        description: input
+    outputs:
+      - name: sq_x
+        type: float
+        description: sqrt(input)
