@@ -3,9 +3,11 @@
 Simplify communication between computers and microcontrollers.
 
 Currently supported microcontrollers:
- - Arduino series
+
+- Arduino series
  
 Currently supported host languages:
+
  - Python3
 
 ## Installation
@@ -149,7 +151,7 @@ The type of the parameter.
 Currently supported options are:
 
 | Type     | Description             | c++ equivalent                                             | python equivalent |
-|----------+-------------------------+------------------------------------------------------------+-------------------|
+|----------|-------------------------|------------------------------------------------------------|-------------------    |
 | `char`   | character               | `char`                                                     | `char`            |
 | `int8`   | 8 bit signed integer    | `int8_t`, `char`                                           | `int`             |
 | `uint8`  | 8 bit unsigned integer  | `uint8_t`, `unsigned char`                                 | `int`             |
