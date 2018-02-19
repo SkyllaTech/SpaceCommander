@@ -9,6 +9,8 @@ Currently supported microcontrollers:
 Currently supported host languages:
 
  - Python3
+ 
+View the `samples` directory for usage examples.
 
 ## Installation
 
