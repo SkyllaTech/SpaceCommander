@@ -29,11 +29,14 @@ class Window(Gtk.Window):
         for i in range(self.nb.get_n_pages()):
             self.nb.remove_page(-1)
         for k, v in output.items():
-            w = Gtk.TextView()
-            w.get_buffer().set_text(v)
-            w.set_editable(False)
-            w.set_monospace(True)
-            self.nb.append_page(w, Gtk.Label(k))
+            tv = Gtk.TextView()
+            tv.get_buffer().set_text(v)
+            tv.set_editable(False)
+            tv.set_monospace(True)
+            sw = Gtk.ScrolledWindow()
+            sw.add(tv)
+            self.nb.append_page(sw, Gtk.Label(k))
+        self.nb.set_size_request(400, 400)
         self.nb.show_all()
 
     def __init__(self):
@@ -43,7 +46,7 @@ class Window(Gtk.Window):
         self.add(vbox)
 
         hbox = Gtk.HBox(valign='start', vexpand=False)
-        vbox.add(hbox)
+        vbox.pack_start(hbox, False, True, 0)
         choose_root_button = Gtk.Button('Choose Project Directory')
         choose_root_button.connect('clicked', self.on_choose_root)
         hbox.add(choose_root_button)
@@ -52,7 +55,7 @@ class Window(Gtk.Window):
         hbox.add(generate_button)
 
         self.nb = Gtk.Notebook()
-        vbox.add(self.nb)
+        vbox.pack_start(self.nb, True, True, 0)
 
 def run():
     window = Window()
