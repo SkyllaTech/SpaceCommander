@@ -48,6 +48,7 @@ def generate_templates(config):
     template_dir = os.path.dirname(os.path.realpath(__file__))
     
     device_template_dir = os.path.join(template_dir, '..', 'templates', 'device_templates', config['device']['type'])
+    ret_dict = {}
 
     if 'host' in config:
         print(config['host'])
@@ -59,12 +60,19 @@ def generate_templates(config):
             generated_file_path = os.path.join(generated_host_dir, os.path.basename(f)[:-6])
             open(generated_file_path, 'w').write(Template(open(f).read()).render(commands=config['commands'], device_config=config['device'], host_config=config['host']))
             print('host output file: {}'.format(generated_file_path))
+        for f in glob.glob(os.path.join(host_template_dir, '*.spdoc')):
+            ret_dict['{} - {}'.format(os.path.basename(f)[:-6], config['host']['type'])] = Template(open(f).read()).render(commands=config['commands'], device_config=config['device'], host_config=config['host'])
     generated_device_dir = os.path.join('generated', config['device']['type'])
     pathlib.Path(generated_device_dir).mkdir(parents=True, exist_ok=True)
     for f in glob.glob(os.path.join(device_template_dir, '*.spcmd')):
         generated_file_path = os.path.join(generated_device_dir, os.path.basename(f)[:-6])
         open(generated_file_path, 'w').write(Template(open(f).read()).render(commands=config['commands'], device_config=config['device']))
         print('device output file: {}'.format(generated_file_path))
+    for f in glob.glob(os.path.join(device_template_dir, '*.spdoc')):
+        print(f)
+        print(config)
+        ret_dict['{} - {}'.format(os.path.basename(f)[:-6], config['device']['type'])] = Template(open(f).read()).render(commands=config['commands'], device_config=config['device'])
+    return ret_dict
 
 if __name__ == '__main__':
     generate_templates(load_config('commands.yaml'))
