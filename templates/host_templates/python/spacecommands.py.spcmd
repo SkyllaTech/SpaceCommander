@@ -8,7 +8,7 @@ import struct
 import serial
 <%
     import struct
-    type_map = { 'char': 'c', 'int8': 'b', 'uint8': 'B', 'int32': 'i', 'uint32': 'I', 'float': 'f' }
+    type_map = { 'char': 'c', 'int8': 'b', 'uint8': 'B', 'int16': 'h', 'uint16':  'H', 'int32': 'i', 'uint32': 'I', 'float': 'f' }
 %>
 
 class Device:
