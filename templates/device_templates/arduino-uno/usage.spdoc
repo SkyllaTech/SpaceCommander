@@ -1,0 +1,70 @@
+///////////////////////////////////
+// Include in your <project>.ino //
+///////////////////////////////////
+
+#include "generated/arduino-uno/spacecommands.hpp
+
+///////////////////////////////
+// Implement these commands: //
+///////////////////////////////
+
+namespace spcmds {
+
+<%
+type_map = { 'char': 'char',
+             'int8': 'char',
+             'uint8': 'unsigned char',
+             'int16': 'int',
+             'uint16': 'unsigned int',
+             'int32': 'long',
+             'uint32': 'unsigned long',
+             'float': 'float' }
+%>
+% for command in commands:
+void ${command['name']}_callback(\
+% for idx, input_arg in enumerate(command['inputs']):
+${type_map[input_arg['type']]} in_${input_arg['name']}\
+% if idx < len(command['inputs']) - 1 or len(command['outputs']) > 0:
+, \
+% endif
+% endfor
+% for idx, output_arg in enumerate(command['outputs']):
+${type_map[output_arg['type']]}& out_${output_arg['name']}\
+% if idx < len(command['outputs']) - 1:
+, \
+% endif
+% endfor
+) {
+    // Your code here
+}
+
+% endfor
+} // namespace spcmds
+
+
+
+
+
+//////////////////////////
+// SpaceCommander Usage //
+//////////////////////////
+
+/*
+
+spcmds::init(); // initialize system
+
+ex:
+    int main() {
+        spcmds::init();
+        // do stuff
+    }
+
+spcmds::process_commands(); // call in main loop
+
+ex:
+    while (true) {
+        spcmds::process_commands();
+        // do stuff
+    }
+
+ */
