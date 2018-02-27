@@ -33,6 +33,7 @@ class Window(Gtk.Window):
             tv.get_buffer().set_text(v)
             tv.set_editable(False)
             tv.set_monospace(True)
+            tv.modify_font(Pango.FontDescription('Monospace 9'))
             sw = Gtk.ScrolledWindow()
             sw.add(tv)
             self.nb.append_page(sw, Gtk.Label(k))
