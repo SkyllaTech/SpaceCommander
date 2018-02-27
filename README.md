@@ -152,14 +152,16 @@ The type of the parameter.
 
 Currently supported options are:
 
-| Type     | Description             | c++ equivalent                                             | python equivalent |
-|----------|-------------------------|------------------------------------------------------------|-------------------    |
-| `char`   | character               | `char`                                                     | `char`            |
-| `int8`   | 8 bit signed integer    | `int8_t`, `char`                                           | `int`             |
-| `uint8`  | 8 bit unsigned integer  | `uint8_t`, `unsigned char`                                 | `int`             |
-| `int32`  | 32 bit signed integer   | `int32_t`, `int` (x86_64), `long` (avr)                    | `int`             |
-| `uint32` | 32 bit unsigned integer | `uint32_t`, `unsigned int` (x86_64), `unsigned long` (avr) | `int`             |
-| `float`  | 32 bit float            | `float`                                                    | `float`           |
+| Type     | Description             | c++ equivalent                                              | python equivalent |
+|----------|-------------------------|-------------------------------------------------------------|-------------------|
+| `char`   | character               | `char`                                                      | `char`            |
+| `int8`   | 8 bit signed integer    | `int8_t`, `char`                                            | `int`             |
+| `uint8`  | 8 bit unsigned integer  | `uint8_t`, `unsigned char`                                  | `int`             |
+| `int16`  | 16 bit signed integer   | `int16_t`, `short` (x86_64), `int` (avr)                    | `int`             |
+| `uint16` | 16 bit unsigned integer | `uint16_t`, `unsigned short` (x86_64), `unsigned int` (avr) | `int`             |
+| `int32`  | 32 bit signed integer   | `int32_t`, `int` (x86_64), `long` (avr)                     | `int`             |
+| `uint32` | 32 bit unsigned integer | `uint32_t`, `unsigned int` (x86_64), `unsigned long` (avr)  | `int`             |
+| `float`  | 32 bit float            | `float`                                                     | `float`           |
 
 ## Templates
 
