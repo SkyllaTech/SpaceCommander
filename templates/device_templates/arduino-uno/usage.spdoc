@@ -2,7 +2,7 @@
 // Include in your <project>.ino //
 ///////////////////////////////////
 
-#include "generated/arduino-uno/spacecommands.hpp
+#include "generated/arduino-uno/spacecommands.hpp"
 
 ///////////////////////////////
 // Implement these commands: //
