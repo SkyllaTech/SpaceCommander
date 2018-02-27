@@ -1,0 +1,4 @@
+#! /usr/bin/env bash
+
+SPCMDDIR="$(dirname "$(readlink -f "$0")")"/..
+python3 $SPCMDDIR/src/gui.py
