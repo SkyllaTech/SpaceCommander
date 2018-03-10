@@ -5,6 +5,10 @@ bool led_pin_state = false;
 
 namespace spcmds {
 
+void ping_callback() {
+  
+}
+
 void echo_callback(char in_letter, char& out_letter, char& out_double_char) {
   led_pin_state = !led_pin_state;
   digitalWrite(led_pin, led_pin_state);

@@ -4,6 +4,8 @@ from generated.python.spacecommands import Device
 
 device = Device('/dev/ttyUSB0')
 
+device.ping()
+
 print(device.echo('a'.encode('ascii')))
 
 print(device.times2(1040))

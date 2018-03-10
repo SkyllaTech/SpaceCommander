@@ -178,6 +178,8 @@ bool process_commands() {
                 );
                 % if len(command['outputs']) > 0:
                 _internal_::write_${command['name']}(output_vals);
+                % else:
+                Serial.write(0);
                 % endif
             }
             break;

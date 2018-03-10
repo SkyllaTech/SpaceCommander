@@ -27,6 +27,7 @@ class Device:
     def get_hash(self):
         self.ser.write(chr(0).encode('ascii'))
         return self.ser.read(${len(hashval)})
+
     % for cmd_idx, command in enumerate(commands):
     % if command['host'] == 'device':
     def ${command['name']}(self\
@@ -39,23 +40,21 @@ class Device:
 , in_${input_arg['name']}\
 % endfor
 )
-        self.ser.write(packed_struct)
-        ##self.ser.write(struct.pack('b${''.join([type_map[i['type']] for i in command['inputs']])}', ${cmd_idx}\
-##% for idx, input_arg in enumerate(command['inputs']):
-##, in_${input_arg['name']}\
-##% endfor
-##))
+        self.ser.write(packed_struct)\
         <%
         read_str_format = '<{}'.format(''.join([type_map[o['type']] for o in command['outputs']]))
         struct_num_bytes = struct.Struct(read_str_format).size
         %>
+        % if len(command['outputs']) > 0:
         ret_val = self.ser.read(${struct_num_bytes})
-        % if len(command['outputs']) > 1:
-        return struct.unpack('${read_str_format}', ret_val)
-
-        % elif len(command['outputs']) > 0:
+        % if len(command['outputs']) == 1:
         return struct.unpack('${read_str_format}', ret_val)[0]
-
+        % else:
+        return struct.unpack('${read_str_format}', ret_val)
         % endif
+        % else:
+        self.ser.read(1)
+        % endif
+
     % endif
     % endfor
