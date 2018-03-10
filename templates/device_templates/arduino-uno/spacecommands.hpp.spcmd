@@ -86,9 +86,7 @@ enum commands {
     % endfor
 };
 
-void init() {
-    Serial.begin(${device_config['baudrate']});
-}
+void init();
 
 /**
  * Checks for latest incoming messages
@@ -102,15 +100,12 @@ bool process_commands();
 // INTERNAL //
 //////////////
 
-void read_char(char& v) {
-    Serial.readBytes(&v, 1);
-}
-
-void write_char(char v) {
-    Serial.write(v);
-}
-
 namespace _internal_ {
+
+void send_hash() {
+    const char hash[] = "${hashval}";
+    Serial.write(hash, ${len(hashval)});
+}
 
 % for command in commands:
 % if len(command['inputs']) > 0:
@@ -140,6 +135,13 @@ void write_${command['name']}(const S_out_${command['name']}& vals) {
 % endfor
 } // namespace _internal_
     
+
+void init() {
+    Serial.begin(${device_config['baudrate']});
+    while (!Serial); // wait for serial device to be connected
+    _internal_::send_hash();
+}
+
 bool process_commands() {
     if (Serial.available() > 0) {
         char cmd_byte = Serial.read();
