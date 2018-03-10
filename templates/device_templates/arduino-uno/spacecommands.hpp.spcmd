@@ -81,6 +81,7 @@ print('} // namespace spcmds\n\n')
 ////////////////////////
 
 enum commands {
+    SENDHASH,
     % for command in commands:
     ${command['name'].upper()},
     % endfor
@@ -146,6 +147,9 @@ bool process_commands() {
     if (Serial.available() > 0) {
         char cmd_byte = Serial.read();
         switch(cmd_byte) {
+        case SENDHASH:
+            _internal_::send_hash();
+            break;
         % for command in commands:
         case ${command['name'].upper()}:
             {

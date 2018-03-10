@@ -24,6 +24,9 @@ class Device:
     def close(self):
         self.ser.close()
 
+    def get_hash(self):
+        self.ser.write(chr(0).encode('ascii'))
+        return self.ser.read(${len(hashval)})
     % for cmd_idx, command in enumerate(commands):
     % if command['host'] == 'device':
     def ${command['name']}(self\
@@ -31,7 +34,7 @@ class Device:
 , in_${input_arg['name']}\
 % endfor
 ):
-        packed_struct = struct.pack('<b${''.join([type_map[i['type']] for i in command['inputs']])}', ${cmd_idx}\
+        packed_struct = struct.pack('<b${''.join([type_map[i['type']] for i in command['inputs']])}', ${cmd_idx + 1}\
 % for idx, input_arg in enumerate(command['inputs']):
 , in_${input_arg['name']}\
 % endfor
