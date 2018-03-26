@@ -25,7 +25,7 @@ class Window(Gtk.Window):
             pass # TODO: show dialog saying project root must be set
 
         os.chdir(self.project_root)
-        output = main.generate_templates(main.load_config('commands.yaml'))
+        output = main.generate_templates(*main.load_config('commands.yaml'))
         for i in range(self.nb.get_n_pages()):
             self.nb.remove_page(-1)
         for k, v in output.items():
