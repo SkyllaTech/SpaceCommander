@@ -83,7 +83,7 @@ print('} // namespace spcmds\n\n')
 enum commands {
     SENDHASH,
     % for command in commands:
-    ${command['name'].upper()},
+    SPCMDS_${command['name'].upper()},
     % endfor
 };
 
@@ -151,7 +151,7 @@ bool process_commands() {
             _internal_::send_hash();
             break;
         % for command in commands:
-        case ${command['name'].upper()}:
+        case SPCMDS_${command['name'].upper()}:
             {
                 % if len(command['inputs']) > 0:
                 _internal_::S_in_${command['name']} input_vals;
