@@ -29,6 +29,12 @@ public:
     ////////////////////////
     // GENERATED COMMANDS //
     ////////////////////////
+
+    /**
+      * Check hash
+      */
+    bool check_hash();
+
     % for cmd_idx, command in enumerate(commands):
     /**
       * ${command['description']}
@@ -68,7 +74,7 @@ public:
     ////////////////////////////////////////////
     // Implement these methods in source file //
     ////////////////////////////////////////////
-    void version_error();
+    void version_error(char* hash_buff, int len);
 };
 
 //////////////
@@ -86,14 +92,29 @@ template <typename T>
 Device<T>::Device(T& serial)
     : m_serial(&serial) {
     m_serial->begin(${device_config['baudrate']});
-    // m_serial->setTimeout() // TODO
+    m_serial->setTimeout(500); // TODO: take in configuration option
 
-  
+    while (m_serial->available()) {
+        m_serial->read();
+    }
+
+    while (!check_hash())
+      delay(100);
+    /* check_hash(); */
+}
+
+template <typename T>
+bool Device<T>::check_hash() {
+    m_serial->write((byte)SENDHASH_HOST);
+    m_serial->flush();
+    while (!m_serial->available());
     char hash_buff[${len(hashval)}];
     m_serial->readBytes(hash_buff, ${len(hashval)});
     if (strcmp(hash_buff, "${hashval}") != 0) {
-        version_error();
+        version_error(hash_buff, ${len(hashval)});
+        return false;
     }
+    return true;
 }
 
 % for cmd_idx, command in enumerate(commands):
@@ -115,9 +136,12 @@ void Device<T>::${command['name']}(
   % endfor
 ) {
     m_serial->write((byte)SPCMDS_HOST_${command['name'].upper()});
+    m_serial->flush();
     % for input_idx, input_arg in enumerate(command['inputs']):
     m_serial->write((char*) &in_${input_arg['name']}, sizeof(in_${input_arg['name']}));
     % endfor
+    m_serial->flush();
+    while (!m_serial->available());
     % for output_idx, output_arg in enumerate(command['outputs']):
     m_serial->readBytes((char*) &out_${output_arg['name']}, sizeof(out_${output_arg['name']}));
     % endfor
