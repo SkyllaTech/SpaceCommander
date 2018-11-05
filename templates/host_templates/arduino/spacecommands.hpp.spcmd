@@ -24,6 +24,7 @@ template <typename T>
 class Device {
     T* m_serial;
 public:
+    Device() {}
     Device(T& serial);
 
     ////////////////////////
@@ -35,7 +36,7 @@ public:
       */
     bool check_hash();
 
-    % for cmd_idx, command in enumerate(commands):
+    % for cmd_idx, command in enumerate(commands_config):
     /**
       * ${command['description']}
       % if len(command['inputs']) > 0:
@@ -81,9 +82,9 @@ public:
 // INTERNAL //
 //////////////
 
-enum commands {
+enum host_commands {
     SENDHASH_HOST,
-    % for command in commands:
+    % for command in commands_config:
     SPCMDS_HOST_${command['name'].upper()},
     % endfor
 };
@@ -91,8 +92,8 @@ enum commands {
 template <typename T>
 Device<T>::Device(T& serial)
     : m_serial(&serial) {
-    m_serial->begin(${device_config['baudrate']});
-    m_serial->setTimeout(500); // TODO: take in configuration option
+    m_serial->begin(${connection_config['baudrate']});
+    m_serial->setTimeout(${int(host_config['timeout'] * 1000)});
 
     while (m_serial->available()) {
         m_serial->read();
@@ -100,7 +101,6 @@ Device<T>::Device(T& serial)
 
     while (!check_hash())
       delay(100);
-    /* check_hash(); */
 }
 
 template <typename T>
@@ -110,14 +110,14 @@ bool Device<T>::check_hash() {
     while (!m_serial->available());
     char hash_buff[${len(hashval)}];
     m_serial->readBytes(hash_buff, ${len(hashval)});
-    if (strcmp(hash_buff, "${hashval}") != 0) {
+    if (memcmp(hash_buff, "${hashval}", ${len(hashval)}) != 0) {
         version_error(hash_buff, ${len(hashval)});
         return false;
     }
     return true;
 }
 
-% for cmd_idx, command in enumerate(commands):
+% for cmd_idx, command in enumerate(commands_config):
 template <typename T>
 void Device<T>::${command['name']}(
   % for input_idx, input_arg in enumerate(command['inputs']):

@@ -44,13 +44,17 @@ Files are generated to:
 The following is the general structure of a `commands.yaml` file. Proper indentation is important, along with the space between a parameter and the value. Ie, use `name: echo` instead of `name:echo`. The dash (`-`) is used for elements in an array. Please see the [YAML spec](http://www.yaml.org/spec/1.2/spec.html#id2797382) for more details.
 
 ```yaml
-device: # required
-  type: <device-type>  # required
-  baudrate: <integer>  # required
+connection:               # required
+  type: <connection-type> # required
+  baudrate: <integer>     # required
+
+device:               # required
+  type: <device-type> # required
+  timeout: <float>    # optional
   
-host: # optional
-  type: <host-language>  # required
-  timeout: <float>  # optional
+host:                   # optional
+  type: <host-language> # required
+  timeout: <float>      # optional
   
 commands: # required
   - name: <command-name>  # required
@@ -76,6 +80,22 @@ commands: # required
 
 ---
 
+#### connection
+> Required
+
+Used for configuring settings for the connection between the devices
+
+##### type <connection-type>
+> Required
+
+Currently available options:
+ - `serial` : used for Serial UART connections.
+ 
+##### baudrate
+> Required
+
+Use a baudrate available on your platform. Typical values are: 9600, 19200, 38400, 57600, 115200. Please review the datasheet for your devices to determine an appropriate value.
+
 #### device
 > Required
 
@@ -87,10 +107,10 @@ Used for configuring the target device.
 Currently available options:
  - `arduino-uno` : used for Arduino platforms.
 
-##### baudrate
+##### timeout
 > Required
 
-Use a baudrate available on your platform. Typical values are: 9600, 19200, 38400, 57600, 115200. Please review the datasheet for your device to determine an appropriate value.
+Timeout for commands from the host. These are application specific. If host code takes a longer duration to execute, then this value may need to be increased. However, generally speaking, host code should be short to prevent lockups.
 
 ---
 

@@ -30,7 +30,7 @@ print('Implement the following functions in your device code')
 print('-----------------------------------------------------')
 print('\nnamespace spcmds {\n')
 %>
-% for command in commands:
+% for command in commands_config:
 
 /**
  *  ${command['description']}
@@ -82,7 +82,7 @@ print('} // namespace spcmds\n\n')
 
 enum commands {
     SENDHASH,
-    % for command in commands:
+    % for command in commands_config:
     SPCMDS_DEVICE_${command['name'].upper()},
     % endfor
 };
@@ -108,7 +108,7 @@ void send_hash() {
     Serial.write(hash, ${len(hashval)});
 }
 
-% for command in commands:
+% for command in commands_config:
 % if len(command['inputs']) > 0:
 struct S_in_${command['name']} {
     % for input_arg in command['inputs']:
@@ -138,7 +138,8 @@ void write_${command['name']}(const S_out_${command['name']}& vals) {
     
 
 void init() {
-    Serial.begin(${device_config['baudrate']});
+    Serial.begin(${connection_config['baudrate']});
+    Serial.setTimeout(${int(device_config['timeout'] * 1000)});
     while (!Serial); // wait for serial device to be connected
     _internal_::send_hash();
 }
@@ -150,7 +151,7 @@ bool process_commands() {
         case SENDHASH:
             _internal_::send_hash();
             break;
-        % for command in commands:
+        % for command in commands_config:
         case SPCMDS_DEVICE_${command['name'].upper()}:
             {
                 % if len(command['inputs']) > 0:

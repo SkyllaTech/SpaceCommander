@@ -14,12 +14,12 @@ import time
 
 class Device:
     def __init__(self, port):
-        self.ser = serial.serial_for_url(port, baudrate=${device_config['baudrate']}, timeout=${host_config['timeout']})
+        self.ser = serial.serial_for_url(port, baudrate=${connection_config['baudrate']}, timeout=${host_config['timeout']})
         while self.ser.in_waiting == 0:
             time.sleep(0.001)
         hashval = self.ser.read(${len(hashval)})
         if hashval != b'${hashval}':
-            print('received hash {} but expected {}'.format(hashval, b'${hashval}'))
+            print('Hash Mismatch! Received hash {} but expected {}. Ensure both host and device are the same version.'.format(hashval, b'${hashval}'))
 
     def close(self):
         self.ser.close()
@@ -28,7 +28,7 @@ class Device:
         self.ser.write(chr(0).encode('ascii'))
         return self.ser.read(${len(hashval)})
 
-    % for cmd_idx, command in enumerate(commands):
+    % for cmd_idx, command in enumerate(commands_config):
     % if command['host'] == 'device':
     def ${command['name']}(self\
 % for input_arg in command['inputs']:

@@ -11,7 +11,7 @@ dev = Device('/dev/ttyUSB0')
 dev = Device('COM1')
 
 # call commands on devices:
-% for command in commands:
+% for command in commands_config:
 % if len(command['outputs']) > 0:
 % for idx, oupt in enumerate(command['outputs']):
 ${oupt['name']}\

@@ -20,7 +20,7 @@ type_map = { 'char': 'char',
              'uint32': 'unsigned long',
              'float': 'float' }
 %>
-% for command in commands:
+% for command in commands_config:
 void ${command['name']}_callback(\
 % for idx, input_arg in enumerate(command['inputs']):
 ${type_map[input_arg['type']]} in_${input_arg['name']}\

@@ -5,6 +5,22 @@ import yaml
 import os, glob, pathlib, sys
 import hashlib
 
+
+def generate_host_template(f, config, hashval):
+    return Template(open(f).read()).render(connection_config=config['connection'],
+                                           commands_config=config['commands'],
+                                           device_config=config['device'],
+                                           host_config=config['host'],
+                                           hashval=hashval)
+
+
+def generate_device_template(f, config, hashval):
+    return Template(open(f).read()).render(connection_config=config['connection'],
+                                           commands_config=config['commands'],
+                                           device_config=config['device'],
+                                           hashval=hashval)
+
+
 def load_config(filename):
     with open(filename) as commands_file:
         file_data = commands_file.read()
@@ -23,11 +39,21 @@ def load_config(filename):
             if not option in parent:
                 parent[option] = default
 
-        check_exists('device', config, False)
-        check_exists('type', config['device'], True)
-        check_exists('baudrate', config['device'], True)
+        # Ensure connection exists
+        check_exists('connection', config, True)
+        check_exists('type', config['connection'], False)
+        # Ensure device exists
+        check_exists('device', config, True)
+        check_exists('type', config['device'], False)
+        fill_defaults('timeout', config['device'], 1)
+        # Host configuration
+        if 'host' in config:
+            fill_defaults('timeout', config['host'], None)
+
+        # Ensure commands exists
         check_exists('commands', config)
         for command in config['commands']:
+            # Ensure name and host exist
             check_exists('name', command)
             check_exists('host', command)
             fill_defaults('description', command, 'Documentation missing')
@@ -46,35 +72,42 @@ def load_config(filename):
 
         return config, hashval
 
+
 def generate_templates(config, hashval):
     template_dir = os.path.dirname(os.path.realpath(__file__))
-    
+
     device_template_dir = os.path.join(template_dir, '..', 'templates', 'device_templates', config['device']['type'])
     ret_dict = {}
 
+    # Host file generation
     if 'host' in config:
         print(config['host'])
         host_template_dir = os.path.join(template_dir, '..', 'templates', 'host_templates', config['host']['type'])
-        generated_host_dir = os.path.join('generated', config['host']['type'])
+        generated_host_dir = os.path.join('generated/host', config['host']['type'])
         pathlib.Path(generated_host_dir).mkdir(parents=True, exist_ok=True)
-        print(host_template_dir)
+
         for f in glob.glob(os.path.join(host_template_dir, '*.spcmd')):
             generated_file_path = os.path.join(generated_host_dir, os.path.basename(f)[:-6])
-            open(generated_file_path, 'w').write(Template(open(f).read()).render(commands=config['commands'], device_config=config['device'], host_config=config['host'], hashval=hashval))
-            print('host output file: {}'.format(generated_file_path))
+            open(generated_file_path, 'w').write(generate_host_template(f, config, hashval))
+            print('Generated host output file: {}'.format(generated_file_path))
+
         for f in glob.glob(os.path.join(host_template_dir, '*.spdoc')):
-            ret_dict['{} - {}'.format(os.path.basename(f)[:-6], config['host']['type'])] = Template(open(f).read()).render(commands=config['commands'], device_config=config['device'], host_config=config['host'], hashval=hashval)
-    generated_device_dir = os.path.join('generated', config['device']['type'])
+            ret_dict['{} - {}'.format(os.path.basename(f)[:-6], config['host']['type'])] = generate_host_template(f, config, hashval)
+
+    # Device file generation
+    generated_device_dir = os.path.join('generated/device', config['device']['type'])
     pathlib.Path(generated_device_dir).mkdir(parents=True, exist_ok=True)
+
     for f in glob.glob(os.path.join(device_template_dir, '*.spcmd')):
         generated_file_path = os.path.join(generated_device_dir, os.path.basename(f)[:-6])
-        open(generated_file_path, 'w').write(Template(open(f).read()).render(commands=config['commands'], device_config=config['device'], hashval=hashval))
-        print('device output file: {}'.format(generated_file_path))
+        open(generated_file_path, 'w').write(generate_device_template(f, config, hashval))
+        print('Generated device output file: {}'.format(generated_file_path))
+
     for f in glob.glob(os.path.join(device_template_dir, '*.spdoc')):
-        print(f)
-        print(config)
-        ret_dict['{} - {}'.format(os.path.basename(f)[:-6], config['device']['type'])] = Template(open(f).read()).render(commands=config['commands'], device_config=config['device'], hashval=hashval)
+        ret_dict['{} - {}'.format(os.path.basename(f)[:-6], config['device']['type'])] = generate_device_template(f, config, hashval)
+
     return ret_dict
+
 
 if __name__ == '__main__':
     generate_templates(*load_config('commands.yaml'))
