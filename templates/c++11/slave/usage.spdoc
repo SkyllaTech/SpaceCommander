@@ -1,0 +1,33 @@
+###########################
+########## Usage ##########
+###########################
+
+from generated.python.spacecommands import Device
+
+# if the device is connected to /dev/ttyUSB0 on Linux:
+dev = Device('/dev/ttyUSB0')
+
+# if the device is connected to COM1 on Windows:
+dev = Device('COM1')
+
+# call commands on devices:
+% for command in commands_config:
+% if len(command['outputs']) > 0:
+% for idx, oupt in enumerate(command['outputs']):
+${oupt['name']}\
+% if idx < len(command['outputs']) - 1:
+, \
+% endif
+% endfor
+ = \
+% endif
+dev.${command['name']}(\
+% for idx, inp in enumerate(command['inputs']):
+${inp['name']}\
+% if idx < len(command['inputs']) - 1:
+, \
+% endif
+% endfor
+)
+
+% endfor

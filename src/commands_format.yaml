@@ -1,0 +1,97 @@
+_format: dict
+connection:
+  _required: true
+  _format: dict
+  type:
+    _required: true
+    _format: str
+    _options: ['serial']
+  speed:
+    _required: true
+    _format: int
+  parity:
+    _required: false
+    _format: str
+    _default: 'none'
+    _options: ['none', 'even', 'odd']
+  crc:
+    _required: false
+    _format: str
+    _default: 'none'
+    _options: ['none', 'crc-8', 'crc-16', 'crc-32']
+  addressable:
+    _required: false
+    _format: bool
+    _default: false
+heartbeat:
+  _required: false
+  _format: dict
+  _default: null
+  interval:
+    _required: true
+    _format: int
+  count:
+    _required: true
+    _format: int
+  size:
+    _required: true
+    _format: data_type
+    _options: ['uint8', 'uint16', 'uint32', 'uint64']
+master:
+  _required: true
+  _format: dict
+  type:
+    _required: true
+    _format: str
+    _options: ['python3', 'c++11', 'arduino']
+  timeout:
+    _required: false
+    _format: int
+slave:
+  _required: true
+  _format: list
+  type:
+    _required: true
+    _format: str
+    _options: ['python3', 'c++11', 'arduino']
+  timeout:
+    _required: false
+    _format: int
+commands:
+  _required: true
+  _format: list
+  name:
+    _required: true
+    _format: str
+  description:
+    _required: false
+    _format: str
+    _default: 'No description provided'
+  inputs:
+    _required: false
+    _format: list
+    _default: [ ]
+    name:
+      _required: true
+      _format: str
+    type:
+      _required: true
+      _format: data_type
+    description:
+      _required: false
+      _format: str
+      _default: 'No description provided'
+  outputs:
+    _required: false
+    _format: list
+    _default: [ ]
+    name:
+      _required: true
+      _format: str
+    type:
+      _required: true
+      _format: data_type
+    description:
+      _required: false
+      _format: str
+      _default: 'No description provided'

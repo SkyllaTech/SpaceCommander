@@ -1,0 +1,46 @@
+connection:
+    type: serial
+    speed: 9600
+
+heartbeat:
+    interval: 1000
+    count: 5
+    size: uint8
+
+master:
+    type: c++11
+
+slave:
+    - type: c++11
+      timeout: 1000
+
+commands:
+    - name: send_byte
+      description: Send a byte to the slave
+      inputs:
+          - name: b
+            type: uint8
+            description: Byte to be sent
+    - name: recv_byte
+      description: Receive a byte from the slave
+      outputs:
+          - name: b
+            type: uint8
+            description: Received byte
+    - name: echo
+      description: Send string to slave and read it back
+      inputs:
+          - name: send
+            type: uint32
+      outputs:
+          - name: recv
+            type: uint32
+    - name: bigtest
+      inputs:
+          - name: b1
+            type: uint32
+          - name: b2
+            type: uint32
+      outputs:
+          - name: b3
+            type: uint32

@@ -1,77 +1,26 @@
 #! /usr/bin/env python3
 
-from mako.template import Template
+import os, glob, pathlib, sys, argparse
 import yaml
-import os, glob, pathlib, sys
 import hashlib
+from mako.template import Template
 
+import configuration
 
-def generate_host_template(f, config, hashval):
-    return Template(open(f).read()).render(connection_config=config['connection'],
-                                           commands_config=config['commands'],
-                                           device_config=config['device'],
-                                           host_config=config['host'],
-                                           hashval=hashval)
+def generate_master_template(template, config):
+    with open(template) as t:
+        return Template(t.read()).render(connection=config['connection'],
+                                         commands=config['commands'],
+                                         heartbeat=config['heartbeat'],
+                                         master=config['master'])
+    return None
 
-
-def generate_device_template(f, config, hashval):
-    return Template(open(f).read()).render(connection_config=config['connection'],
-                                           commands_config=config['commands'],
-                                           device_config=config['device'],
-                                           hashval=hashval)
-
-
-def load_config(filename):
-    with open(filename) as commands_file:
-        file_data = commands_file.read()
-        config = yaml.load(file_data)
-        hashval = hashlib.md5(file_data.encode('ascii')).hexdigest()[:10]
-
-        # check for mandatory and optional components in config
-        def check_exists(option, parent, p=False):
-            if not option in parent:
-                print('ERROR: Required option {} missing'.format(option))
-                sys.exit(-1)
-            if p:
-                print('Building with {}: {}'.format(option, parent[option]))
-
-        def fill_defaults(option, parent, default):
-            if not option in parent:
-                parent[option] = default
-
-        # Ensure connection exists
-        check_exists('connection', config, True)
-        check_exists('type', config['connection'], False)
-        # Ensure device exists
-        check_exists('device', config, True)
-        check_exists('type', config['device'], False)
-        fill_defaults('timeout', config['device'], 1)
-        # Host configuration
-        if 'host' in config:
-            fill_defaults('timeout', config['host'], None)
-
-        # Ensure commands exists
-        check_exists('commands', config)
-        for command in config['commands']:
-            # Ensure name and host exist
-            check_exists('name', command)
-            check_exists('host', command)
-            fill_defaults('description', command, 'Documentation missing')
-
-            fill_defaults('inputs', command, [])
-            for inp in command['inputs']:
-                check_exists('name', inp)
-                check_exists('type', inp)
-                fill_defaults('description', inp, 'Documentation missing')
-
-            fill_defaults('outputs', command, [])
-            for oup in command['outputs']:
-                check_exists('name', oup)
-                check_exists('type', oup)
-                fill_defaults('description', oup, 'Documentation missing')
-
-        return config, hashval
-
+def generate_slave_template(template, config, slave):
+    with open(template) as t:
+        return Template(t.read()).render(connection=config['connection'],
+                                         commands=config['commands'],
+                                         heartbeat=config['heartbeat'],
+                                         slave=slave)
 
 def generate_templates(config, hashval):
     template_dir = os.path.dirname(os.path.realpath(__file__))
@@ -109,5 +58,34 @@ def generate_templates(config, hashval):
     return ret_dict
 
 
+def generate_templates(config):
+    print("Configuration:", config)
+    template_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'templates')
+    generated_dir = 'generated'
+    print("Loading templates from:", template_dir)
+    # Master template generation
+    print("Master Configuration:", config['master'])
+    generated_master_dir = os.path.join(generated_dir, '_'.join(['master', config['master']['type']]))
+    pathlib.Path(generated_master_dir).mkdir(parents=True, exist_ok=True)
+    for template_path in glob.glob(os.path.join(template_dir, config['master']['type'], 'master', '*.spcmd')):
+        print("Generating template file:", template_path)
+        generated_file_path = os.path.join(generated_master_dir, os.path.basename(template_path)[:-6])
+        with open(generated_file_path, 'w') as f:
+            f.write(generate_master_template(template_path, config))
+    # Slave template generation
+    for slave in config['slave']:
+        print("Slave configuration:", slave)
+        generated_slave_dir = os.path.join(generated_dir, '_'.join(['slave', slave['type']]))
+        pathlib.Path(generated_slave_dir).mkdir(parents=True, exist_ok=True)
+        for template_path in glob.glob(os.path.join(template_dir, slave['type'], 'slave', '*.spcmd')):
+            print("Generating template file:", template_path)
+            generated_file_path = os.path.join(generated_slave_dir, os.path.basename(template_path)[:-6])
+            with open(generated_file_path, 'w') as f:
+                f.write(generate_slave_template(template_path, config, slave))
+    
+
 if __name__ == '__main__':
-    generate_templates(*load_config('commands.yaml'))
+    parser = argparse.ArgumentParser()
+    parser.add_argument("config_file")
+    args = parser.parse_args()
+    generate_templates(configuration.load_config_from_file(args.config_file))

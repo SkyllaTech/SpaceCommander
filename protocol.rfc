@@ -1,0 +1,67 @@
+# SpaceCommander Protocol
+
+The SpaceCommander protocol is based loosly on the Modbus protocol.
+
+
+## Goal
+
+The protocol defines a reliable communication protocol between embedded devices.
+
+The goal is to be less restrictive than the Modbus protocol in terms how data is sent between devices and how functions can be called.
+The protocol acts mainly to provide remote function calling and data transmission for embedded devices.
+
+
+## Message Format
+The message format technically changes for all new configurations, as there are multiple configuration options.
+
+The messaging protocols used are asymmetrical, a message from the master to a slave has a different format than a message from the slave to the master.
+
+A message from the master consists of the following parts:
+
+| Name     | Length (Bits) | Function                                                                               |
+|----------|---------------|----------------------------------------------------------------------------------------|
+| Start    | 8             | At least 8 bits of silence                                                             |
+| Address  | a x 8         | Number of address bytes specified by configuration                                     |
+| Command  | c x 8         | The minimum number of bytes to fit the entire command set defined by the configuration |
+| Data     | d x 8         | The data transmitted with the command                                                  |
+| LRC?/CRC | 16            | CRC Value                                                                              |
+| End      | 8             |                                                                                        |
+|          |               |                                                                                        |
+    
+Acknowledges!
+
+A response message from a slave consists of:
+  
+| Name     | Length (Bits) | Function                              |
+|----------|---------------|---------------------------------------|
+| Start    | 8             | At least 8 bits of silence            |
+| Address  | a x 8         | The address of this slave device      |
+| ACK/NACK | 8             | Acknowledge signal                    |
+| Data     | d x 8         | The data transmitted with the command |
+| LRC?/CRC | 16            | CRC Value                             |
+| End      | 8             |                                       |
+|          |               |                                       |
+    
+
+CRC Specification:
+https://www.autosar.org/fileadmin/user_upload/standards/classic/4-3/AUTOSAR_SWS_CRCLibrary.pdf
+
+
+### Address
+
+The address field is an optional part of the message frame, if desired by the configuration.
+For point to point message, this field can be configured to be dropped from the packets, removing unnecessary communication overhead.
+
+### Command
+
+The command field contains as many bytes necessary for all commands in the configuration.
+
+### Data
+
+### CRC
+
+
+### Character Transmission
+
+Parity bits
+Bit order

@@ -141,7 +141,6 @@ void init() {
     Serial.begin(${connection_config['baudrate']});
     Serial.setTimeout(${int(device_config['timeout'] * 1000)});
     while (!Serial); // wait for serial device to be connected
-    _internal_::send_hash();
 }
 
 bool process_commands() {
