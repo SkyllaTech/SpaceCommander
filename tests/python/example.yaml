@@ -5,12 +5,12 @@ connection:
     addressable: true
 
 master:
-    type: python3
+    type: python2
     timeout: 1000
-
+    
 slave:
     - type: python3
-      timeout: 1000
+      timeout: 10000
 
 commands:
     - name: send_byte
