@@ -39,11 +39,11 @@ heartbeat:
     _options: ['uint8', 'uint16', 'uint32', 'uint64']
 master:
   _required: true
-  _format: dict
+  _format: list
   type:
     _required: true
     _format: str
-    _options: ['python3', 'c++11', 'arduino']
+    _options: ['python2', 'python3', 'c++11', 'arduino']
   timeout:
     _required: false
     _format: int

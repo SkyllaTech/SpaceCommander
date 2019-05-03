@@ -7,13 +7,15 @@ from mako.template import Template
 
 import configuration
 
-def generate_master_template(template, config):
+
+def generate_master_template(template, config, master):
     with open(template) as t:
         return Template(t.read()).render(connection=config['connection'],
                                          commands=config['commands'],
                                          heartbeat=config['heartbeat'],
-                                         master=config['master'])
+                                         master=master)
     return None
+
 
 def generate_slave_template(template, config, slave):
     with open(template) as t:
@@ -21,68 +23,36 @@ def generate_slave_template(template, config, slave):
                                          commands=config['commands'],
                                          heartbeat=config['heartbeat'],
                                          slave=slave)
-
-def generate_templates(config, hashval):
-    template_dir = os.path.dirname(os.path.realpath(__file__))
-
-    device_template_dir = os.path.join(template_dir, '..', 'templates', 'device_templates', config['device']['type'])
-    ret_dict = {}
-
-    # Host file generation
-    if 'host' in config:
-        print(config['host'])
-        host_template_dir = os.path.join(template_dir, '..', 'templates', 'host_templates', config['host']['type'])
-        generated_host_dir = os.path.join('generated/host', config['host']['type'])
-        pathlib.Path(generated_host_dir).mkdir(parents=True, exist_ok=True)
-
-        for f in glob.glob(os.path.join(host_template_dir, '*.spcmd')):
-            generated_file_path = os.path.join(generated_host_dir, os.path.basename(f)[:-6])
-            open(generated_file_path, 'w').write(generate_host_template(f, config, hashval))
-            print('Generated host output file: {}'.format(generated_file_path))
-
-        for f in glob.glob(os.path.join(host_template_dir, '*.spdoc')):
-            ret_dict['{} - {}'.format(os.path.basename(f)[:-6], config['host']['type'])] = generate_host_template(f, config, hashval)
-
-    # Device file generation
-    generated_device_dir = os.path.join('generated/device', config['device']['type'])
-    pathlib.Path(generated_device_dir).mkdir(parents=True, exist_ok=True)
-
-    for f in glob.glob(os.path.join(device_template_dir, '*.spcmd')):
-        generated_file_path = os.path.join(generated_device_dir, os.path.basename(f)[:-6])
-        open(generated_file_path, 'w').write(generate_device_template(f, config, hashval))
-        print('Generated device output file: {}'.format(generated_file_path))
-
-    for f in glob.glob(os.path.join(device_template_dir, '*.spdoc')):
-        ret_dict['{} - {}'.format(os.path.basename(f)[:-6], config['device']['type'])] = generate_device_template(f, config, hashval)
-
-    return ret_dict
+    return None
 
 
 def generate_templates(config):
-    print("Configuration:", config)
     template_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'templates')
     generated_dir = 'generated'
     print("Loading templates from:", template_dir)
     # Master template generation
-    print("Master Configuration:", config['master'])
-    generated_master_dir = os.path.join(generated_dir, '_'.join(['master', config['master']['type']]))
-    pathlib.Path(generated_master_dir).mkdir(parents=True, exist_ok=True)
-    for template_path in glob.glob(os.path.join(template_dir, config['master']['type'], 'master', '*.spcmd')):
-        print("Generating template file:", template_path)
-        generated_file_path = os.path.join(generated_master_dir, os.path.basename(template_path)[:-6])
-        with open(generated_file_path, 'w') as f:
-            f.write(generate_master_template(template_path, config))
+    for master in config['master']:
+        print("Generating master:", master['type'])
+        # print("Master Configuration:", master)
+        generated_master_dir = os.path.join(generated_dir, '_'.join(['master', master['type']]))
+        pathlib.Path(generated_master_dir).mkdir(parents=True, exist_ok=True)
+        for template_path in glob.glob(os.path.join(template_dir, master['type'], 'master', '*.spcmd')):
+            #print("Generating template file:", template_path)
+            generated_file_path = os.path.join(generated_master_dir, os.path.basename(template_path)[:-6])
+            with open(generated_file_path, 'w') as f:
+                f.write(generate_master_template(template_path, config, master))
     # Slave template generation
     for slave in config['slave']:
-        print("Slave configuration:", slave)
+        print("Generating slave:", slave['type'])
+        # print("Slave configuration:", slave)
         generated_slave_dir = os.path.join(generated_dir, '_'.join(['slave', slave['type']]))
         pathlib.Path(generated_slave_dir).mkdir(parents=True, exist_ok=True)
         for template_path in glob.glob(os.path.join(template_dir, slave['type'], 'slave', '*.spcmd')):
-            print("Generating template file:", template_path)
+            #print("Generating template file:", template_path)
             generated_file_path = os.path.join(generated_slave_dir, os.path.basename(template_path)[:-6])
             with open(generated_file_path, 'w') as f:
                 f.write(generate_slave_template(template_path, config, slave))
-    
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()

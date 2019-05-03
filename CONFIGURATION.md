@@ -7,17 +7,21 @@ The following is a description of the `commands.yaml` file. It is important to h
 
 ### type: \<connection-type\>
 > Required
+> Format: string
 
 Available options:
  - `serial` : used for Serial UART connections.
 
 ### speed: \<connection-speed\>
 > Required
+> Format: integer
 
 Use a baudrate available on your platform. Typical values are: 9600, 19200, 38400, 57600, 115200. Please review the datasheet for your devices to determine an appropriate value.
 
 ### parity: \<connection-parity\>
 > Optional
+> Format: string
+> Currently not implemented
 
 The parity to be used for byte level parity checking within UART.
 
@@ -28,6 +32,7 @@ Available options:
 
 ### crc: \<connection-crc\>
 > Optional
+> Format: string
 
 CRC checking to be done on the full received packet. Note, CRC calculations are not very cheap, and could cause bottlenecks on low power embedded systems. CRC calculations also use external libraries for calculations, these are automatically included with SpaceCommander if the CRC option is used.
 
@@ -38,11 +43,11 @@ Available options:
   - `crc-32`: 32 bits (4 byte) CRC.
 
 CRC Libraries:
-  - 'arduino-*': [FastCRC](https://github.com/FrankBoesing/FastCRC)
   - 'python3': [crcmod](https://pypi.org/project/crcmod/)
 
 ## heartbeat: 
 > Optional
+> Currently not implemented
 
 Optional setting to have the master send heartbeat packets to the slave. This increments a counter on the master and slave, and can be used to detect a loss of connection to the slave.
 
@@ -72,14 +77,16 @@ Available options:
  
 ### type: \<master-type\>
 > Required
+> Format: string
 
 Currently available options:
- - `arduino-arm` : For ARM based Arduino master devices.
- - `arduino-avr` : For AVR based Arduino master devices.
- - `python` : For Python3 based master devices.
+ - `arduino` : For Arduino master devices.
+ - `python2` : For Python2 based master devices.
+ - `python3` : For Python3 based master devices.
  
 ### timeout: \<master-timeout\>
 > Optional
+> Format: integer
 
 Connection timeout for the master in milliseconds. If a slave device does not respond to the master within the timeout period, the master will assume that an error has occurred, and can react appropriately.
 
@@ -92,20 +99,20 @@ _Array_
 
 ### type: \<slave-type\>
 > Required
+> Format: string
 
 Currently available options:
- - `arduino-arm` : For ARM based Arduino slave devices.
- - `arduino-avr` : For AVR based Arduino slave devices.
- - `python` : For Python3 based slave devices.
+ - `arduino` : For Arduino slave devices.
+ - `python3` : For Python3 based slave devices.
 
 ### timeout: \<slave-timeout\>
 > Required
+> Format: integer
 
 Connection timeout for slave in milliseconds. If the slave device expects to be receiving data but does not for the length of the timeout, it quits attempting to read from the connection and raises an error.
 
 ## commands:
 > Required
-
 
 Commands which are to be generated. There must be at least one command.
 
@@ -113,11 +120,13 @@ _Array_
 
 ### name: \<command-name\>
 > Required
+> Format: string
 
 Name of the command
 
 ### description: \<command-description\>
 > Optional
+> Format: string
 
 Human readable documentation of the command.
 
@@ -130,16 +139,19 @@ _Array_
 
 ##### name: \<input-name\>
 > Required
+> Format: string
 
 Name of the input argument.
 
 ##### type: \<input-type\>
 > Required
+> Format: string
 
-Type of the input argument.
+Type of the input argument. See supported data types.
 
 ##### description: \<input-description\>
 > Optional
+> Format: string
 
 Description of the input argument.
 
@@ -152,16 +164,19 @@ _Array_
 
 ##### name: \<output-name\>
 > Required
+> Format: string
 
 Name of the output argument.
 
 ##### type: \<output-type\>
 > Required
+> Format: string
 
-Type of the output argument.
+Type of the output argument. See supported data types.
 
 ##### description: \<output-description\>
 > Optional
+> Format: string
 
 Description of the output argument.
 
@@ -183,28 +198,24 @@ Currently supported options are:
 | `int64`  | 64 bit signed integer   | `int64_t`, `long long`                      | `int64_t`, `long long`                       | `int64_t`, `long long`                      | `int`              |
 | `uint64` | 64 bit unsigned integer | `uint64_t`, `unsigned long long`            | `uint64_t`, `unsigned long long`             | `uint64_t`, `unsigned long long`            | `int`              |
 | `float`  | 32 bit float            | `float`                                     | `float`                                      | `float`                                     | `float`            |
-| `string` | string                  | string                                      | string                                       | string                                      | string             |
 
 ### Example Configuration
 
 
-The following is an example configuration that uses a serial UART connection from a python3 host computer to an arduino-avr slave device. It sends a heartbeat message to the slave once a second, and will raise an error if 5 heartbeat messages fail. 
+The following is an example configuration that uses a serial UART connection from a python3 host computer to an Arduino slave device. It uses a 16 bit (2 byte) CRC added to every message to check for transmission errors.
 
 ```yaml
 connection:
     type: serial
     speed: 9600
-
-heartbeat:
-    interval: 1000
-    count: 5
+    crc: crc-16
 
 master:
     type: python3
     timeout: 1000
 
 slave:
-    type: arduino-avr
+    type: arduino
     timeout: 1000
 
 commands:
@@ -220,12 +231,12 @@ commands:
           - name: b
             type: uint8_t
             description: Received byte
-    - name: echo
-      description: Send string to slave and read it back
+    - name: echo_char
+      description: Send char to slave and read it back
       inputs:
-          - name: send_string
-            type: string
+          - name: send_char
+            type: char
       outputs:
-          - name: recv_string
-            type: string
+          - name: recv_char
+            type: char
 ```

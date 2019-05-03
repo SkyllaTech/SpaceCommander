@@ -1,26 +1,21 @@
 # SpaceCommander
 
-Simplify communication between computers and microcontrollers.
-
-Currently supported microcontrollers:
-
-- Arduino series
- 
-Currently supported host languages:
-
- - Python3
- 
-View the `samples` directory for usage examples.
+Simplify robust serial communication, mainly to facillitate communication between computers and microcontrollers.
+This is meant to replace the ad-hoc communication often used for sending commands from a computer to a microcontroller.
 
 ## Installation
 
-Please [install Python3 first](https://www.python.org/downloads/).
+SpaceCommander uses Python3 Mako templates for generating the code.
 
-crcmod
+``` shell
+pip3 install mako
+```
 
-Then, run
+If you plan to use any CRC messages, the CRC library used must also be installed:
 
-    pip install mako
+``` shell
+pip3 install crcmod
+```
     
 ### Linux
 
@@ -32,35 +27,41 @@ Add <spacecommander>/bin to the system path
 
 ## Usage
 
-Run `spacecommander` in a project folder. The directory must have a `commands.yaml` file to be valid.
+SpaceCommander reads in a specified commands file in the YAML format, and produces communication code for the specified master and slave types from the commands file.
+These are placed in the `generated` folder in the directory SpaceCommander is run from.
 
-## commands.yaml Configuration
+## Protocol
 
-A `commands.yaml` file must exist in the parent directory of where the generated files should be located.
+See the [Protocol](PROTOCOL.md) document for an in depth description of the protocol used by SpaceCommander. 
+
+## Commands Configuration
+
+SpaceCommander uses a YAML format file to specify parameters for the connection, the master type, the slave type, and command list.
 More details for the format of this document can be found [here](CONFIGURATION.md).
-
-Files are generated to:
-`<root>/generated/<platform>/`
-
-
 
 ## Templates
 
-Custom templates can be created for other languages and platforms. These templates are written using [Mako](http://www.makotemplates.org/). Templates should be named `<filename>.spcmd` and placed in `<spacecommand-dir>/templates/<host_templates|device_templates>/<platform>`.
+Custom templates can be created for other languages and platforms. These templates are written using [Mako](http://www.makotemplates.org/). Templates should be named `<filename>.spcmd` and placed in `<spacecommand-dir>/templates/<platform>/<master|slave>`.
 
-Available arguments for host templates:
- - `commands` : see the `commands` section in the `Structure` section.
- - `device_config` : see the `device` section in the `Structure` section.
- - `host_config` : see the `host` section in the `Structure` section.
+## Supported Features
 
-Available arguments for device templates:
- - `commands` : see the `commands` section in the `Structure` section.
- - `device_config` : see the `device` section in the `Structure` section.
+Currently implemented masters:
+  * Python3
+  * Python2
+  * Arduino
 
+Currently implemented slaves:
+  * Python3
+  * Arduino
 
-Add addressing scheme for connection type
-Add callbacks before and after read/write to allow for RS485
-Fix timeouts
-Improve error handling, add CRC
-Strings
-Heartbeat
+Currently implemented features:
+  * Automatic CRC generation for messages
+  * Timeout support 
+  * Packet framing
+  * Configuration hash checking
+
+Planned features:
+  * Background heartbeat messages
+  * Packet sequence numbers
+  * Fixed length array support
+  * String support
